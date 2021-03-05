@@ -1,5 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import cuid from 'cuid';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import update from 'immutability-helper';
 import Dropzone from './Dropzone';
 import './App.css';
 import ImageList from './ImageList';
@@ -20,12 +23,21 @@ function App() {
     });
   }, []);
 
+  const moveImage = (dragIndex, hoverIndex) => {
+    const draggedImage = images[dragIndex];
+
+    setImages(
+      update(images, { $splice: [[dragIndex, 1], [hoverIndex, 0, draggedImage]] })
+    );
+  };
 
   return (
     <div className="App">
       <h1 className="text-center">Drag and Drop Example</h1>
       <Dropzone onDrop={onDrop} accept={"image/*"} />
-      <ImageList images={images}/>
+      <DndProvider backend={HTML5Backend}>
+        <ImageList images={images} moveImage={moveImage} />
+      </DndProvider>
     </div>
   );
 }
